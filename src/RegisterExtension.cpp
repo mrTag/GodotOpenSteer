@@ -6,14 +6,16 @@
 #include "godot_cpp/core/defs.hpp"
 #include "godot_cpp/godot.hpp"
 
-#include "Example.h"
 #include "GDExtensionTemplate.h"
+#include "OpenSteerServer.h"
 
 /// @file
 /// Register our classes with Godot.
 
 namespace
 {
+    OpenSteerServer* openSteerServer;
+
     /// @brief Called by Godot to let us register our classes with Godot.
     ///
     /// @param p_level the level being initialized by Godot
@@ -21,18 +23,18 @@ namespace
     /// @see GDExtensionInit
     void initializeExtension( godot::ModuleInitializationLevel p_level )
     {
-        if ( p_level != godot::MODULE_INITIALIZATION_LEVEL_SCENE )
+        if ( p_level == godot::MODULE_INITIALIZATION_LEVEL_SCENE )
         {
-            return;
+            // godot::ClassDB::register_class<ExampleRef>();
+
+            godot::ClassDB::register_class<GDExtensionTemplate>();
         }
 
-        godot::ClassDB::register_class<ExampleRef>();
-        godot::ClassDB::register_class<ExampleMin>();
-        godot::ClassDB::register_class<Example>();
-        godot::ClassDB::register_class<ExampleVirtual>( true );
-        godot::ClassDB::register_abstract_class<ExampleAbstract>();
-
-        godot::ClassDB::register_class<GDExtensionTemplate>();
+        if ( p_level == godot::MODULE_INITIALIZATION_LEVEL_SERVERS )
+        {
+            godot::ClassDB::register_class<OpenSteerServer>();
+            openSteerServer = memnew( OpenSteerServer );
+        }
     }
 
     /// @brief Called by Godot to let us do any cleanup.
@@ -40,9 +42,10 @@ namespace
     /// @see GDExtensionInit
     void uninitializeExtension( godot::ModuleInitializationLevel p_level )
     {
-        if ( p_level != godot::MODULE_INITIALIZATION_LEVEL_SCENE )
+        if ( p_level == godot::MODULE_INITIALIZATION_LEVEL_SERVERS )
         {
-            return;
+            memdelete( openSteerServer );
+            openSteerServer = nullptr;
         }
     }
 }
